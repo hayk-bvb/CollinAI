@@ -9,6 +9,7 @@ from utils import check_whitespace_or_invalid_type, clean_pages
 from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS
 from dotenv import load_dotenv
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 load_dotenv()
 
 
@@ -32,11 +33,12 @@ class Azure(Provider):
         self.api_key = os.getenv("AZURE_OPENAI_API_KEY")
         self.endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
         self.deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
-
-    def get_embeddings(self, raw_pages, query):
-        embeddings = AzureOpenAIEmbeddings(
+        
+        self.embeddings = AzureOpenAIEmbeddings(
             model="text-embedding-ada-002"
         )
+
+    def get_embeddings(self, raw_pages):
         check_whitespace_or_invalid_type(raw_pages)
 
         cleaned_pages = clean_pages(raw_pages)
@@ -49,16 +51,28 @@ class Azure(Provider):
                     metadata=page.metadata
                 ))
             else:
-                print(f"⚠️ Skipping invalid page: {page.metadata.get('page')} (bad content)")
+                print(f"Skipping invalid page: {page.metadata.get('page')} (bad content)")
 
-        print(f"✅ Prepared {len(documents)} documents for FAISS embedding.")
+        print(f"Chunking documents.")
+        chunked_docs = self.chunk_documents(documents)
 
-        vector_store = FAISS.from_documents(documents, embeddings)
+
+        print(f"Prepared {len(documents)} documents for FAISS embedding.")
+
+        vector_store = FAISS.from_documents(chunked_docs, self.embeddings)
         vector_store.save_local("faiss_index/")
+    
+    def chunk_documents(self, documents):
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=500,
+            chunk_overlap=100
+        )
+        return splitter.split_documents(documents)
 
         
-    def search(self, vector_store, query):
-    
+    def search(self, query):
+        vector_store = FAISS.load_local("faiss_index/", self.embeddings, allow_dangerous_deserialization=True)
+        
         docs = vector_store.similarity_search(query, k=2)
         for doc in docs:
             print(f'Page {doc.metadata["page"]}: {doc.page_content[:300]}\n')
@@ -79,10 +93,11 @@ class Azure(Provider):
 
 my_provider = Azure()
 
-pages = asyncio.run(my_provider.load_pdf_async(FILE_PATH))
+raw_pages = asyncio.run(my_provider.load_pdf_async(FILE_PATH))
 # print(pages[0].metadata)
 
-cosine = my_provider.get_embeddings(pages, "Equal Treatment")
+# cosine = my_provider.get_embeddings(raw_pages=raw_pages)
+cosine = my_provider.search("requirements for training facilities")
 print(cosine)
 
     
