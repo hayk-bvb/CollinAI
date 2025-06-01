@@ -1,16 +1,25 @@
-def check_whitespace_or_invalid_type(raw_pages) -> None:
+class Utils:
+    """A class to hold few utility methods"""
+    
+    def __init__(self):
+        pass
 
-        for i, doc in enumerate(raw_pages):
-            if not isinstance(doc.page_content, str):
-                print(f"[Warning] Document {i} has invalid type: {type(doc.page_content)}")
-            elif not doc.page_content.strip():
-                print(f"[Warning] Document {i} is empty or whitespace only")
+    def check_whitespace_or_invalid_type(self, raw_pages) -> None:
 
-# TODO: Move this to another method or even class
-# TODO: Make a test where it checks if the inputted pages is empty or whitespace only
-def clean_pages(raw_pages):
-     
-     return [
-            doc for doc in raw_pages
-            if isinstance(doc.page_content, str) and doc.page_content.strip()
-        ]
+            for i, doc in enumerate(raw_pages):
+                if not isinstance(doc.page_content, str):
+                    print(f"[Warning] Document {i} has invalid type: {type(doc.page_content)}")
+                elif not doc.page_content.strip():
+                    print(f"[Warning] Document {i} is empty or whitespace only")
+
+    def clean_pages(self, raw_pages):
+        res = []
+        for page in raw_pages:
+            if isinstance(page.page_content, str) and page.page_content:
+                page.page_content = page.page_content.strip()
+                res.append(page)
+            else:
+                print(f"Skipping invalid page: {page.metadata.get('page')} (bad content)")
+        
+        return res
+
