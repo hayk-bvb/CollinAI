@@ -3,14 +3,8 @@ from dotenv import load_dotenv
 load_dotenv()
 from data import Azure
 from langchain_openai import AzureChatOpenAI
-from langchain.memory import ConversationBufferMemory
 from pprint import pprint
-from abc import ABC, abstractmethod
-from langchain.prompts import ChatPromptTemplate
-from langchain.chains.combine_documents import create_stuff_documents_chain
-import json
-from langchain.chains import create_retrieval_chain, create_history_aware_retriever
-from langchain_core.runnables import RunnableSequence
+from abc import ABC
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.tools import tool
 from langchain_core.messages import SystemMessage
@@ -18,6 +12,7 @@ from langgraph.prebuilt import ToolNode
 from langgraph.graph import MessagesState, StateGraph
 from langgraph.graph import END
 from langgraph.prebuilt import ToolNode, tools_condition
+from langchain.tools import Tool
 
 
 class LLM(ABC):
@@ -49,27 +44,50 @@ class OpenAIModel(LLM):
                 )
 
         self.graph_builder = StateGraph(MessagesState)
+
+        self.retrieve_tool = Tool(
+            name="retrieve",
+            func=self._retrieve_function,
+            description=(
+                "Use this tool to retrieve documents related to legal questions in football (soccer), "
+                "including references to articles, statutes, or equal rights."
+            )
+        )
+
         # Step 2: Execute the retrieval
-        self.tools = ToolNode([self.retrieve])
+        self.tools = ToolNode([self.retrieve_tool])
 
 
     
-    @tool(response_format="content_and_artifact")
-    def retrieve(self, query: str):
-        """Retrieve information related to a query."""
-        retrieved_docs = self.provider(query, k=3)
+    def _retrieve_function(self, query: str):
+        retrieved_docs = self.retriever.invoke(query)
         serialized = "\n\n".join(
-            (f"Source {doc.metadata}\n" f"Content: {doc.page_content}"
-             for doc in retrieved_docs)
+            (f"Source {doc.metadata}\nContent: {doc.page_content}" for doc in retrieved_docs)
         )
         return serialized, retrieved_docs
     
     # Step 1: Generate an AIMessage that may include a tool-call to be sent.
     def query_or_respond(self, state: MessagesState):
         """Generate tool call for retrieval or respond."""
-        llm_with_tools = self.llm.bind_tools([self.retrieve])
-        response = llm_with_tools.invoke(state["messages"])
-        # MessagesState appends messages to the state instead of overwriting
+        llm_with_tools = self.llm.bind_tools([self.retrieve_tool])
+
+        # Inject system message if not already present
+        system_prompt = SystemMessage(
+            content=(
+                "You are Collin, a legal expert in football (soccer) law. "
+                "When you are unsure about a topic, use the `retrieve` tool to look up relevant documents. "
+                "Your responses should be concise and precise."
+            )
+        )
+
+        # Ensure we only inject it once
+        new_messages = [system_prompt] + [
+            msg for msg in state["messages"]
+            if msg.type != "system"
+        ]
+
+        response = llm_with_tools.invoke(new_messages)
+
         return {"messages": [response]}
     
     # Step 3: Generate a response using the retrieved content.
@@ -87,7 +105,7 @@ class OpenAIModel(LLM):
         # Format into prompt
         docs_content = "\n\n".join(doc.content for doc in tool_messages)
         system_message_content = (
-            "You are a football (soccer) legal expert, your name is Collin. "
+            "You are Collin, a football (soccer) legal expert. "
             "Use the following pieces of retrieved context to answer "
             "the question. If you don't know the answer, say that you don't know. "
             " Try to keep the answer concise, around 10 sentences should be your maximum."
@@ -101,6 +119,11 @@ class OpenAIModel(LLM):
             or (message.type == "ai" and not message.tool_calls)
         ]
         prompt = [SystemMessage(system_message_content)] + conversation_messages
+
+        print("====== Final Prompt to LLM ======")
+        for msg in prompt:
+            print(f"{msg.type.upper()}: {msg.content}")
+        print("=================================")
 
         response = self.llm.invoke(prompt)
         return {"messages": response}
@@ -126,19 +149,15 @@ class OpenAIModel(LLM):
     
 
 
-# model = OpenAIModel()
-# # ans = model.invoke("What does Article 28 say about equal rights?")
-# ans = model.invoke("What is your name?")
-# pprint(ans)
-
 # Test
 model = OpenAIModel()
 input_message = "What does Article 28 say about equal rights?"
+# input_message = "Is your name Collin?"
 graph = model.setup_graph()
 
 
 for step in graph.stream(
-    {"messages": [{"role": "user", "content": input_message}]},
+    {"messages": [HumanMessage(content=input_message)]},
     stream_mode="values",
 ):
     step["messages"][-1].pretty_print()
