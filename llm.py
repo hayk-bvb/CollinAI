@@ -4,7 +4,7 @@ load_dotenv()
 from data import Azure
 from langchain_openai import AzureChatOpenAI
 from pprint import pprint
-from abc import ABC
+from abc import ABC, abstractmethod
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.tools import tool
 from langchain_core.messages import SystemMessage
@@ -13,12 +13,20 @@ from langgraph.graph import MessagesState, StateGraph
 from langgraph.graph import END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain.tools import Tool
+from database import RedisClient
+
+# Initialize the database
+db = RedisClient()
 
 
 class LLM(ABC):
     """This class is responsible for communicating with LLM endpoint with appropriate params."""
 
     def __init__(self):
+        pass
+    
+    @abstractmethod
+    def get_llm(self):
         pass
 
 
@@ -56,6 +64,20 @@ class OpenAIModel(LLM):
 
         # Step 2: Execute the retrieval
         self.tools = ToolNode([self.retrieve_tool])
+
+        self.checkpointer = db.get_checkpointer()
+        self.config = {
+            "configurable": {
+                "thread_id": "1"
+            }
+        }
+
+        self.graph = self.setup_graph()
+    
+    def get_llm(self):
+        """A getter method for the LLM we are using."""
+        return self.llm
+
 
 
     
@@ -144,23 +166,30 @@ class OpenAIModel(LLM):
         self.graph_builder.add_edge("tools", "generate")
         self.graph_builder.add_edge("generate", END)
 
-        graph = self.graph_builder.compile()
+        graph = self.graph_builder.compile(self.checkpointer)
         return graph
     
+    
+    def step(self, query):
+        """..."""
+        for step in self.graph.stream({"messages": [HumanMessage(content=query)]},
+                                 self.config,
+                                 stream_mode="values"):
+            
+            step["messages"][-1].pretty_print()
 
 
 # Test
 model = OpenAIModel()
-input_message = "What does Article 28 say about equal rights?"
+input_message1 = "What does Article 28 say about equal rights?"
+input_message2 = "What article did I ask you about you just know?"
 # input_message = "Is your name Collin?"
-graph = model.setup_graph()
+model.step(input_message1)
+model.step(input_message2)
 
 
-for step in graph.stream(
-    {"messages": [HumanMessage(content=input_message)]},
-    stream_mode="values",
-):
-    step["messages"][-1].pretty_print()
+
+
 
 
 
