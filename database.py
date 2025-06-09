@@ -4,7 +4,7 @@ import redis
 class RedisClient:
     """A class to represent the database used for memory for the RAG application. Hosted with Redis"""
 
-    def __init__(self, url="redis://localhost:6379"):
+    def __init__(self, url="redis://localhost:6379", cold_start:bool=False):
             try:
                 self.client = redis.Redis.from_url(url)
                 # Test the connection
@@ -16,7 +16,8 @@ class RedisClient:
 
             finally:
                 with RedisSaver.from_conn_string(url) as checkpointer:
-                    # checkpointer.setup()
+                    if cold_start:
+                        checkpointer.setup()
                     self._checkpointer = checkpointer
 
     def get_checkpointer(self):
@@ -30,6 +31,8 @@ class RedisClient:
     def get(self, key):
         if self.client:
             return self.client.get(key)
+        
+    # TODO: Need to make method to wipe the database
 
 
 if __name__ == "__main__":

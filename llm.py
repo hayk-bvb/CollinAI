@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 load_dotenv()
-from data import Azure
 from langchain_openai import AzureChatOpenAI
 from pprint import pprint
 from abc import ABC, abstractmethod
@@ -38,9 +37,6 @@ class OpenAIModel(LLM):
         self._api_key = os.getenv("AZURE_OPENAI_API_KEY")
         self._endpoint = os.getenv("AZURE_OPENAI_COMPLETION_ENDPOINT")
         self._model = "o3-mini"
-        
-        self.__provider = Azure()
-        self._retriever = self.__provider.load_vector_store("faiss_index/").as_retriever()
 
         self.__llm = AzureChatOpenAI(
                     deployment_name=self._model,
@@ -55,14 +51,6 @@ class OpenAIModel(LLM):
         return self.__llm
 
 
-
-# Test
-model = OpenAIModel()
-input_message1 = "What does Article 28 say about equal rights?"
-input_message2 = "What article did I ask you about you just know?"
-# input_message = "Is your name Collin?"
-model.step(input_message1)
-model.step(input_message2)
 
 
 

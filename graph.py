@@ -6,6 +6,7 @@ from langgraph.graph import MessagesState, StateGraph
 from langgraph.graph import END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain.tools import Tool
+from data import Azure
 
 
 class Graph:
@@ -14,6 +15,9 @@ class Graph:
     def __init__(self, llm, db):
         self.__llm = llm
         self.db = db
+
+        self.__provider = Azure()
+        self._retriever = self.__provider.load_vector_store("faiss_index/").as_retriever()
 
         self.graph_builder = StateGraph(MessagesState)
 
@@ -54,8 +58,8 @@ class Graph:
         # Inject system message if not already present
         system_prompt = SystemMessage(
             content=(
-                "You are Collin, a legal expert in football (soccer) law. "
-                "When you are unsure about a topic, use the `retrieve` tool to look up relevant documents. "
+                "You are Collin, a legal expert in football (soccer) law."
+                "When you are answering a question relating to football, use the `retrieve` tool to look up relevant documents. "
                 "Your responses should be concise and precise."
             )
         )
