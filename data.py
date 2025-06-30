@@ -11,6 +11,9 @@ from dotenv import load_dotenv
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from abc import ABC, abstractmethod
 from utils import Utils
+import logging
+
+logger = logging.getLogger(__name__)
 load_dotenv()
 
 
@@ -76,14 +79,14 @@ class Azure(Provider):
     def chunk_documents(self, documents):
         """Take documents and chunk them uniformly. """
         
-        print(f"Chunking documents.")
+        logger.info(f"Chunking documents.")
         
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=500,
             chunk_overlap=100
         )
         chunks = splitter.split_documents(documents)
-        print(f"Prepared {len(chunks)} chunks for FAISS embedding.")
+        logger.info(f"Prepared {len(chunks)} chunks for FAISS embedding.")
         return chunks
 
         

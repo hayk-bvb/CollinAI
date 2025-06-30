@@ -7,6 +7,10 @@ from langgraph.graph import END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain.tools import Tool
 from data import Azure
+import uuid
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Graph:
@@ -25,8 +29,7 @@ class Graph:
             name="retrieve",
             func=self._retrieve_function,
             description=(
-                "Use this tool to retrieve documents related to legal questions in football (soccer), "
-                "including references to articles, statutes, or equal rights."
+                "Always use this to retrieve documents before answering legal football (soccer) questions."
             )
         )
 
@@ -36,7 +39,7 @@ class Graph:
         self.checkpointer = self.db.get_checkpointer()
         self.config = {
             "configurable": {
-                "thread_id": "1"
+                "thread_id": str(uuid.uuid4())  # new ID every time
             }
         }
 
@@ -44,9 +47,10 @@ class Graph:
 
 
     def _retrieve_function(self, query: str):
+        logger.debug("Retreiving info: ...")
         retrieved_docs = self._retriever.invoke(query)
         serialized = "\n\n".join(
-            (f"Source {doc.metadata}\nContent: {doc.page_content}" for doc in retrieved_docs)
+            (f"Source {doc.metadata} \n Content: {doc.page_content}" for doc in retrieved_docs)
         )
         return serialized, retrieved_docs
     
@@ -58,9 +62,11 @@ class Graph:
         # Inject system message if not already present
         system_prompt = SystemMessage(
             content=(
-                "You are Collin, a legal expert in football (soccer) law."
-                "When you are answering a question relating to football, use the `retrieve` tool to look up relevant documents. "
-                "Your responses should be concise and precise."
+                "You are Collin, a legal expert in football (soccer) law. "
+                "For **every** user question, you must first use the `retrieve` tool "
+                "to look up relevant documents before providing an answer. "
+                "Do not answer directly without calling the tool first. "
+                "Only after retrieving, should you respond."
             )
         )
 
@@ -71,7 +77,7 @@ class Graph:
         ]
 
         response = llm_with_tools.invoke(new_messages)
-
+        logger.debug(f"Tools calls: {response.tool_calls}")
         return {"messages": [response]}
     
     # Step 3: Generate a response using the retrieved content.
@@ -104,12 +110,13 @@ class Graph:
         ]
         prompt = [SystemMessage(system_message_content)] + conversation_messages
 
-        print("====== Final Prompt to LLM ======")
+        logger.debug("====== Final Prompt to LLM ======")
         for msg in prompt:
-            print(f"{msg.type.upper()}: {msg.content}")
-        print("=================================")
+            logger.debug(f"{msg.type.upper()}: {msg.content}")
+        logger.debug("=================================")
 
         response = self.__llm.invoke(prompt)
+        
         return {"messages": response}
 
     

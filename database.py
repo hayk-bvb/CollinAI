@@ -1,5 +1,8 @@
 from langgraph.checkpoint.redis import RedisSaver
 import redis
+import logging
+
+logger = logging.getLogger(__name__)
 
 class RedisClient:
     """A class to represent the database used for memory for the RAG application. Hosted with Redis"""
@@ -9,9 +12,9 @@ class RedisClient:
                 self.client = redis.Redis.from_url(url)
                 # Test the connection
                 self.client.ping()
-                print("Connected to Redis server successfully.")
+                logger.info("Connected to Redis server successfully.")
             except redis.ConnectionError as e:
-                print(f"Failed to connect to Redis server: {e}")
+                logger.error(f"Failed to connect to Redis server: {e}")
                 self.client = None
 
             finally:
@@ -37,7 +40,7 @@ class RedisClient:
 
 if __name__ == "__main__":
     redis_client = RedisClient()
-    print(redis_client.get_checkpointer())
+    # print(redis_client.get_checkpointer())
     # redis_client.set("test_key", "hello")
     # print(redis_client.get("test_key"))  # Output: b'hello'
 
