@@ -1,3 +1,5 @@
+import logging
+
 class Utils:
     """A class to hold few utility methods"""
     
@@ -22,4 +24,23 @@ class Utils:
                 print(f"Skipping invalid page: {page.metadata.get('page')} (bad content)")
         
         return res
+    
+
+
+class MaxLengthFormatter(logging.Formatter):
+    def __init__(self, max_length=120):
+        super().__init__()
+        self.max_length = max_length
+
+    def format(self, record):
+        msg = super().format(record)
+        if len(msg) > self.max_length:
+            lines = []
+            while len(msg) > self.max_length:
+                lines.append(msg[:self.max_length])
+                msg = msg[self.max_length:]
+            lines.append(msg)
+            return '\n'.join(lines)
+        else:
+            return msg
 

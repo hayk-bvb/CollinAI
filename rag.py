@@ -28,7 +28,7 @@ class RAG(ABC):
 
     def ask(self, query: str):
         """Ask the model a question. """
-        return self.__graph.step(query=query)
+        return self.__graph.run(query=query)
     
 
 

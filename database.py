@@ -35,14 +35,16 @@ class RedisClient:
         if self.client:
             return self.client.get(key)
         
-    # TODO: Need to make method to wipe the database
+    def wipe(self):
+        """Deletes all keys in the current Redis database."""
+        if self.client:
+            try:
+                self.client.flushdb()
+                logger.info("Redis database wiped successfully.")
+            except Exception as e:
+                logger.error(f"Failed to wipe Redis database: {e}")
 
 
-if __name__ == "__main__":
-    redis_client = RedisClient()
-    # print(redis_client.get_checkpointer())
-    # redis_client.set("test_key", "hello")
-    # print(redis_client.get("test_key"))  # Output: b'hello'
 
 
 

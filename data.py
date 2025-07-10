@@ -118,10 +118,6 @@ class Azure(Provider):
 my_provider = Azure()
 
 raw_pages = asyncio.run(my_provider.load_pdf(FILE_PATH))
-# print(pages[0].metadata)
 
-# cosine = my_provider.generate_embeddings(raw_pages=raw_pages)
-# cosine = my_provider.search("requirements for training facilities", 3)
-# print(cosine)
 
     

@@ -7,6 +7,6 @@ def setup_logger(log_file='collin.log'):
         handlers=[
             logging.FileHandler(log_file, mode='w'),
         ],
-        force=True
+        force=True,
     )
 

@@ -49,6 +49,9 @@ class Graph:
     def _retrieve_function(self, query: str):
         logger.debug("Retreiving info: ...")
         retrieved_docs = self._retriever.invoke(query)
+        print(f"Num of retrieved docs: {len(retrieved_docs)}")
+        [print(doc.page_content) + '\n' for doc in retrieved_docs]
+        print(retrieved_docs)
         serialized = "\n\n".join(
             (f"Source {doc.metadata} \n Content: {doc.page_content}" for doc in retrieved_docs)
         )
@@ -98,7 +101,6 @@ class Graph:
             "You are Collin, a football (soccer) legal expert. "
             "Use the following pieces of retrieved context to answer "
             "the question. If you don't know the answer, say that you don't know. "
-            " Try to keep the answer concise, around 10 sentences should be your maximum."
             "\n\n"
             f"{docs_content}"
         )
@@ -110,10 +112,10 @@ class Graph:
         ]
         prompt = [SystemMessage(system_message_content)] + conversation_messages
 
-        logger.debug("====== Final Prompt to LLM ======")
-        for msg in prompt:
-            logger.debug(f"{msg.type.upper()}: {msg.content}")
-        logger.debug("=================================")
+        # logger.debug("====== Final Prompt to LLM ======")
+        # for msg in prompt:
+        #     logger.debug(f"{msg.type.upper()}: {msg.content}")
+        # logger.debug("=================================")
 
         response = self.__llm.invoke(prompt)
         
@@ -139,10 +141,17 @@ class Graph:
         return graph
     
     
-    def step(self, query):
-        """..."""
+    def step(self, query: str):
+        print("=== Debug Step-by-Step ===")
         for step in self.graph.stream({"messages": [HumanMessage(content=query)]},
-                                 self.config,
-                                 stream_mode="values"):
-            
-            step["messages"][-1].pretty_print()
+                                      self.config,
+                                      stream_mode="values"):
+            msg = step["messages"][-1]
+            print(f"[{msg.type.upper()}] {msg.content}")
+
+    def run(self, query: str) -> str:
+        result = self.graph.invoke(
+            {"messages": [HumanMessage(content=query)]},
+            self.config
+        )
+        return result["messages"][-1].content
