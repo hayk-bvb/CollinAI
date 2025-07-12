@@ -44,6 +44,10 @@ class RedisClient:
             except Exception as e:
                 logger.error(f"Failed to wipe Redis database: {e}")
 
+if __name__ == "__main__":
+    db = RedisClient()
+    db.wipe()
+
 
 
 

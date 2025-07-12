@@ -36,4 +36,4 @@ question = "What do you have to financially report when loaning a player from an
 
 # TODO: Need to properly format answered and verbose type of answer where you can see the context that was fed into the AI.
 rag = RAG()
-rag.ask(query=question)
+print(rag.ask(query=question))

@@ -50,8 +50,11 @@ class Graph:
         logger.debug("Retreiving info: ...")
         retrieved_docs = self._retriever.invoke(query)
         print(f"Num of retrieved docs: {len(retrieved_docs)}")
-        [print(doc.page_content) + '\n' for doc in retrieved_docs]
-        print(retrieved_docs)
+        for doc in retrieved_docs:
+            print(doc.page_content)
+            print('\n\n')
+                
+        # print(retrieved_docs)
         serialized = "\n\n".join(
             (f"Source {doc.metadata} \n Content: {doc.page_content}" for doc in retrieved_docs)
         )
