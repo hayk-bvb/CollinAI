@@ -2,7 +2,7 @@
 FROM python:3.12.5
 
 # Set working directory inside the container
-WORKDIR /collinai
+WORKDIR /app
 
 # Copy project files into the container
 COPY . .
