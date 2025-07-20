@@ -10,7 +10,7 @@ from langchain_community.vectorstores import FAISS
 from dotenv import load_dotenv
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from abc import ABC, abstractmethod
-from utils import Utils
+from backend.utils import Utils
 import logging
 
 logger = logging.getLogger(__name__)
