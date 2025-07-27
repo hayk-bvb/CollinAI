@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
 import { sendMessage } from '../api';
+import { api } from '../api'
+
+export const getUUID = async () => {
+  const response = await api.get('/api/get_uuid');
+  return response.data;
+}
+
+const sessionID = await getUUID();
+console.log(sessionID)
 
 export default function ChatWindow() {
   const [messages, setMessages] = useState([]);  // [{ from: 'user'|'bot', text }]
@@ -13,7 +22,7 @@ export default function ChatWindow() {
     setLoading(true);
 
     try {
-      const { reply } = await sendMessage(input);
+      const { reply } = await sendMessage(input, sessionID);
       setMessages(msgs => [...msgs, { from: 'bot', text: reply }]);
     } catch (err) {
       console.error(err);
