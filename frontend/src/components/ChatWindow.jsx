@@ -22,7 +22,7 @@ export default function ChatWindow() {
     setLoading(true);
 
     try {
-      const { reply } = await sendMessage(input, sessionID);
+      const { reply } = await sendMessage(input, sessionID['session_id']);
       setMessages(msgs => [...msgs, { from: 'bot', text: reply }]);
     } catch (err) {
       console.error(err);

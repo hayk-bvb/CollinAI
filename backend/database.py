@@ -26,6 +26,10 @@ class RedisClient:
     def get_checkpointer(self):
         """Returns the checkpointer instance. """
         return self._checkpointer
+    
+    def get_client(self):
+        """Returns the redis server client."""
+        return self.client
 
     def set(self, key, value):
         if self.client:

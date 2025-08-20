@@ -11,14 +11,16 @@ import uuid
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel('DEBUG')
 
 
 class Graph:
     """This class is responsible for representing the Langgraph implementation of our application."""
 
-    def __init__(self, llm, db):
+    def __init__(self, llm, db, session_id):
         self.__llm = llm
         self.db = db
+        self.session_id = session_id
 
         self.__provider = Azure()
         self._retriever = self.__provider.load_vector_store("faiss_index/").as_retriever()
@@ -39,20 +41,25 @@ class Graph:
         self.checkpointer = self.db.get_checkpointer()
         self.config = {
             "configurable": {
-                "thread_id": str(uuid.uuid4())  # new ID every time
+                "thread_id": self.create_thread_for_session(session_id)  # new ID every time
             }
         }
 
         self.graph = self.setup_graph()
 
+    def create_thread_for_session(self, session_id: str) -> str:
+        thread_id = str(uuid.uuid4())
+        self.db.get_client().sadd(f"session:{session_id}:threads", thread_id)
+        return thread_id
+
 
     def _retrieve_function(self, query: str):
-        logger.debug("Retreiving info: ...")
+        logger.info("Retreiving info: ...")
         retrieved_docs = self._retriever.invoke(query)
-        print(f"Num of retrieved docs: {len(retrieved_docs)}")
+        logger.debug(f"Num of retrieved docs: {len(retrieved_docs)}")
         for doc in retrieved_docs:
-            print(doc.page_content)
-            print('\n\n')
+            logger.debug(doc.page_content)
+            
                 
         # print(retrieved_docs)
         serialized = "\n\n".join(
