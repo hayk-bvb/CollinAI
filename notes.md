@@ -1,10 +1,9 @@
 # TODO List:
-Need to understand how checkpoint caching works in Langgraph and setup the session memory accordingly
-
-Need to add session_id to RAG class
-
-
-Need to understand how redis caching work with langraph when you use a redis client and checkpointer, look into the chatGPT chat.
 
 
 when you run main.py, you also have to start the redis-stack-server in another thread/terminal
+
+FIGURE OUT: How to setup Docker and containerize the different parts of the application. Learn to keep and maintain the containers
+while also staying in line with disk restrictions.
+
+Add a button to clear the memory, i.e. the redis-stack-server

@@ -111,6 +111,7 @@ class Graph:
             "You are Collin, a football (soccer) legal expert. "
             "Use the following pieces of retrieved context to answer "
             "the question. If you don't know the answer, say that you don't know. "
+            " Try to keep the answer within 7-8 sentences."
             "\n\n"
             f"{docs_content}"
         )
