@@ -29,8 +29,3 @@ def get_uuid():
         'session_id' : SESSION_UUID
     })
 
-"""
-chat:
-    query
-    session_id
-"""

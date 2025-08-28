@@ -9,9 +9,9 @@ from langchain.tools import Tool
 from data import Azure
 import uuid
 import logging
+from utils import Utils
 
 logger = logging.getLogger(__name__)
-logger.setLevel('DEBUG')
 
 
 class Graph:
@@ -160,9 +160,13 @@ class Graph:
             msg = step["messages"][-1]
             print(f"[{msg.type.upper()}] {msg.content}")
 
-    def run(self, query: str) -> str:
+    def run(self, query: str, verbose: bool = False) -> str:
         result = self.graph.invoke(
             {"messages": [HumanMessage(content=query)]},
             self.config
         )
+        # Print the context(s) fed into the LLM
+        if verbose:
+            Utils.print_verbose(result)
+        
         return result["messages"][-1].content

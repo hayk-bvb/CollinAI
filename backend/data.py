@@ -14,13 +14,13 @@ from utils import Utils
 import logging
 
 logger = logging.getLogger(__name__)
+
 load_dotenv()
 
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 FILE_PATH = CURRENT_DIR + "/20240601_Regulations_CLFS_2024_EN.pdf"
 
-utils = Utils()
 
 class Provider(ABC):
     """An abstraction for a Langchain Provider"""
@@ -60,9 +60,9 @@ class Azure(Provider):
     def generate_embeddings(self, raw_pages) -> None:
         """Take raw input pages, put into documents and chunk them. Then use OpenAI Embeddings to create and save index."""
         
-        utils.check_whitespace_or_invalid_type(raw_pages)
+        Utils.check_whitespace_or_invalid_type(raw_pages)
 
-        cleaned_pages = utils.clean_pages(raw_pages)
+        cleaned_pages = Utils.clean_pages(raw_pages)
         documents = []
         for page in cleaned_pages:
             documents.append(Document(
