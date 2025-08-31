@@ -8,4 +8,3 @@ while also staying in line with disk restrictions.
 
 Add a button to clear the memory, i.e. the redis-stack-server
 
-FIGURE OUT: How to properly setup logging file, so that you can also use it in the console for logging as well.

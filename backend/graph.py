@@ -123,11 +123,6 @@ class Graph:
         ]
         prompt = [SystemMessage(system_message_content)] + conversation_messages
 
-        # logger.debug("====== Final Prompt to LLM ======")
-        # for msg in prompt:
-        #     logger.debug(f"{msg.type.upper()}: {msg.content}")
-        # logger.debug("=================================")
-
         response = self.__llm.invoke(prompt)
         
         return {"messages": response}
