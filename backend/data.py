@@ -36,9 +36,20 @@ class Provider(ABC):
         pass
     
     @abstractmethod
-    def search(self):
+    def search(self, query, k, verbose):
         pass
 
+    @abstractmethod
+    def chunk_documents(self, documents):
+        pass
+
+    @abstractmethod
+    def load_vector_store(self, path):
+        pass
+
+    @abstractmethod
+    async def load_pdf(self, file_path):
+        pass
 
 class Azure(Provider):
     """Azure implementation with Langchain"""

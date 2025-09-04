@@ -6,7 +6,7 @@ from langgraph.graph import MessagesState, StateGraph
 from langgraph.graph import END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain.tools import Tool
-from data import Azure
+from data import Provider
 import uuid
 import logging
 from utils import Utils
@@ -17,12 +17,12 @@ logger = logging.getLogger(__name__)
 class Graph:
     """This class is responsible for representing the Langgraph implementation of our application."""
 
-    def __init__(self, llm, db, session_id):
+    def __init__(self, provider: Provider, llm, db, session_id):
         self.__llm = llm
         self.db = db
         self.session_id = session_id
 
-        self.__provider = Azure()
+        self.__provider = provider
         self._retriever = self.__provider.load_vector_store("faiss_index/").as_retriever()
 
         self.graph_builder = StateGraph(MessagesState)

@@ -4,6 +4,7 @@ from database import RedisClient
 from graph import Graph
 from pprint import pprint
 import logging
+from data import Azure
 
 logging.getLogger(__name__)
 
@@ -23,9 +24,11 @@ class RAG(ABC):
 
         # Instantiate the model
         self.__model = OpenAIModel()
+
+        self.__provider = Azure()
         
         # Instantiate the graph
-        self.__graph = Graph(self.__model.get_llm(), db, session_id)
+        self.__graph = Graph(self.__provider, self.__model.get_llm(), db, session_id)
 
     def ask(self, query: str, verbose: bool = False):
         """Ask the model a question. """
