@@ -9,10 +9,7 @@ from data import Azure
 logging.getLogger(__name__)
 
 # Initialize the database
-# TODO: Figure out when you need the cold start as opposed to when you dont
 db = RedisClient(cold_start=True)
-
-# Initialize the logging instance
 
 
 class RAG(ABC):
@@ -20,7 +17,6 @@ class RAG(ABC):
 
     def __init__(self, session_id):
         super().__init__()
-
 
         # Instantiate the model
         self.__model = OpenAIModel()
@@ -40,6 +36,5 @@ question = "can any club sign a player?"
 
 
 if __name__ == "__main__":
-    # TODO: Need to properly format answered and verbose type of answer where you can see the context that was fed into the AI.
     rag = RAG("test session")
     pprint(rag.ask(query=question))

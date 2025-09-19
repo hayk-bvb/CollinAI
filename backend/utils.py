@@ -70,6 +70,7 @@ class Utils:
 
 
 class MaxLengthFormatter(logging.Formatter):
+    """This is a formatter which is use for the logging process."""
     def __init__(self, fmt=None, datefmt=None, style="%", max_length=120):
         super().__init__(fmt=fmt, datefmt=datefmt, style=style)
         self.max_length = max_length

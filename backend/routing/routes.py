@@ -1,16 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_cors import CORS
-import uuid
-from rag import RAG
-
-app = Flask(__name__)
-CORS(app)
-
-# Generate session UUID
-SESSION_UUID = uuid.uuid4()
-
-rag = RAG(SESSION_UUID)
-
+from backend.main import rag, SESSION_UUID
+from backend.app import app
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
