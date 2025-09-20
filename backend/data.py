@@ -85,7 +85,7 @@ class Azure(Provider):
         chunked_docs = self.chunk_documents(documents)
 
         vector_store = FAISS.from_documents(chunked_docs, self.embeddings)
-        vector_store.save_local("faiss_index/")
+        vector_store.save_local("backend/faiss_index/")
     
     def chunk_documents(self, documents):
         """Take documents and chunk them uniformly. """
@@ -102,7 +102,7 @@ class Azure(Provider):
 
         
     def search(self, query: str, k: int, verbose:bool=False):
-        vector_store = self.load_vector_store("faiss_index/")
+        vector_store = self.load_vector_store("backend/faiss_index/")
         
         docs = vector_store.similarity_search(query, k=k)
         if verbose:

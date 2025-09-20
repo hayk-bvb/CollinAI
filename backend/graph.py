@@ -10,6 +10,8 @@ from data import Provider
 import uuid
 import logging
 from utils import Utils
+from backend.database import RedisClient
+from backend.llm import LLM
 
 logger = logging.getLogger(__name__)
 
@@ -17,13 +19,13 @@ logger = logging.getLogger(__name__)
 class Graph:
     """This class is responsible for representing the Langgraph implementation of our application."""
 
-    def __init__(self, provider: Provider, llm, db, session_id):
+    def __init__(self, provider: Provider, llm: LLM, db: RedisClient, session_id: str):
         self.__llm = llm
         self.db = db
         self.session_id = session_id
 
         self.__provider = provider
-        self._retriever = self.__provider.load_vector_store("faiss_index/").as_retriever()
+        self._retriever = self.__provider.load_vector_store("backend/faiss_index/").as_retriever()
 
         self.graph_builder = StateGraph(MessagesState)
 

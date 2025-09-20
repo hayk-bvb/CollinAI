@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
-from flask_cors import CORS
-from backend.main import rag, SESSION_UUID
+from flask import request, jsonify
+from backend.context import rag, SESSION_UUID
 from backend.app import app
+
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
