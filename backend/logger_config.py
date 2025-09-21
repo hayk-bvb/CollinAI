@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from utils import MaxLengthFormatter
+from backend.utils import MaxLengthFormatter
 
 def setup_logger(logfile="app.log", max_length=120, level=logging.DEBUG):
     root = logging.getLogger()       # use root so all child loggers propagate here

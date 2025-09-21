@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 class RedisClient:
     """A class to represent the database used for memory for the RAG application. Hosted with Redis"""
 
-    def __init__(self, url="redis://localhost:6379", cold_start:bool=False):
+    def __init__(self, url="redis://redis-stack:6379", cold_start:bool=False):
             try:
                 self.client = redis.Redis.from_url(url)
                 # Test the connection

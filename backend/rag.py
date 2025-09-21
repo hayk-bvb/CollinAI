@@ -1,10 +1,10 @@
 from abc import ABC
-from llm import OpenAIModel
-from database import RedisClient
-from graph import Graph
+from backend.llm import OpenAIModel
+from backend.database import RedisClient
+from backend.graph import Graph
 from pprint import pprint
 import logging
-from data import Azure
+from backend.data import Azure
 
 logging.getLogger(__name__)
 

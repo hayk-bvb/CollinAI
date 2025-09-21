@@ -1,16 +1,14 @@
 import os
-from langchain_openai import ChatOpenAI
 from langchain_openai import AzureOpenAIEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
 import asyncio
-from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_openai import AzureOpenAIEmbeddings
 from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS
 from dotenv import load_dotenv
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from abc import ABC, abstractmethod
-from utils import Utils
+from backend.utils import Utils
 import logging
 
 logger = logging.getLogger(__name__)

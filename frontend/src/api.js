@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const api = axios.create({
   // TODO: Add a env variable of the baseURL here instead of defining it literally
-  baseURL: 'http://127.0.0.1:5000',
+  baseURL: 'http://127.0.0.1:5050',
   headers: {
     'Content-Type': 'application/json',
   },

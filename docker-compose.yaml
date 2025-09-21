@@ -1,15 +1,16 @@
 services:
   backend:
     build:
-      context: ./backend
+      context: .
+      dockerfile: backend/Dockerfile
     ports:
-      - "5000:5000"
+      - "5050:5000"
     volumes:
       - ./backend:/app
     restart: always
     env_file:
       - .env
-    depends_on: [redis]
+    depends_on: [redis-stack]
 
   frontend:
     build:
@@ -23,8 +24,9 @@ services:
     depends_on: [backend]
     command: npm start
 
-  redis:
-    image: redis/redis-stack:latest
-    command: ["redis-stack-server"]
+  redis-stack:
+    image: redis/redis-stack
+    container_name: redis-stack
     ports:
       - "6379:6379"
+      - "8001:8001"

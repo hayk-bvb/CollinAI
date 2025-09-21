@@ -6,10 +6,10 @@ from langgraph.graph import MessagesState, StateGraph
 from langgraph.graph import END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain.tools import Tool
-from data import Provider
+from backend.data import Provider
 import uuid
 import logging
-from utils import Utils
+from backend.utils import Utils
 from backend.database import RedisClient
 from backend.llm import LLM
 
